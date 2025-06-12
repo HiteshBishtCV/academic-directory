@@ -1,0 +1,49 @@
+name: Academic Directory Monitor
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+
+jobs:
+  collect-and-analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser chromium-chromedriver
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run data collection
+      run: |
+        python scripts/collect_data.py
+        
+    - name: Generate web reports
+      run: |
+        python web_report_generator.py
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./web_output
+        publish_branch: gh-pages
+        
+    - name: Success notification
+      run: |
+        echo "🎉 Academic Directory updated successfully!"
+        echo "📊 View at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"

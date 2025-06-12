@@ -1,0 +1,106 @@
+{
+  "total_professors": 14,
+  "total_universities": 7,
+  "total_postings": 14,
+  "last_updated": "2025-06-12T07:32:54.548749",
+  "professors": [
+    {
+      "name": "Dr. John Smith",
+      "university": "Stanford University",
+      "email": "jsmith@stanford.edu",
+      "title": "Professor",
+      "h_index": 45
+    },
+    {
+      "name": "Dr. John Smith",
+      "university": "Stanford University",
+      "email": "jsmith@stanford.edu",
+      "title": "Professor",
+      "h_index": 45
+    },
+    {
+      "name": "Dr. Bob Johnson",
+      "university": "Johns Hopkins",
+      "email": "bjohnson@jhu.edu",
+      "title": "Professor",
+      "h_index": 42
+    },
+    {
+      "name": "Dr. Bob Johnson",
+      "university": "Johns Hopkins",
+      "email": "bjohnson@jhu.edu",
+      "title": "Professor",
+      "h_index": 42
+    },
+    {
+      "name": "Dr. Charlie Wilson",
+      "university": "Mayo Clinic",
+      "email": "cwilson@mayo.edu",
+      "title": "Professor",
+      "h_index": 41
+    },
+    {
+      "name": "Dr. Charlie Wilson",
+      "university": "Mayo Clinic",
+      "email": "cwilson@mayo.edu",
+      "title": "Professor",
+      "h_index": 41
+    },
+    {
+      "name": "Dr. Sarah Chen",
+      "university": "MIT",
+      "email": "schen@mit.edu",
+      "title": "Professor",
+      "h_index": 39
+    },
+    {
+      "name": "Dr. Sarah Chen",
+      "university": "MIT",
+      "email": "schen@mit.edu",
+      "title": "Professor",
+      "h_index": 39
+    },
+    {
+      "name": "Dr. Jane Doe",
+      "university": "MD Anderson",
+      "email": "jdoe@mdanderson.org",
+      "title": "Associate Professor",
+      "h_index": 38
+    },
+    {
+      "name": "Dr. Jane Doe",
+      "university": "MD Anderson",
+      "email": "jdoe@mdanderson.org",
+      "title": "Associate Professor",
+      "h_index": 38
+    },
+    {
+      "name": "Dr. Alice Brown",
+      "university": "UCSF",
+      "email": "abrown@ucsf.edu",
+      "title": "Assistant Professor",
+      "h_index": 35
+    },
+    {
+      "name": "Dr. Alice Brown",
+      "university": "UCSF",
+      "email": "abrown@ucsf.edu",
+      "title": "Assistant Professor",
+      "h_index": 35
+    },
+    {
+      "name": "Dr. Michael Rodriguez",
+      "university": "UCLA",
+      "email": "mrodriguez@ucla.edu",
+      "title": "Associate Professor",
+      "h_index": 33
+    },
+    {
+      "name": "Dr. Michael Rodriguez",
+      "university": "UCLA",
+      "email": "mrodriguez@ucla.edu",
+      "title": "Associate Professor",
+      "h_index": 33
+    }
+  ]
+}
