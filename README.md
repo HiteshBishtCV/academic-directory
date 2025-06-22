@@ -4,7 +4,7 @@ Automated Medical Physics PhD opportunity tracker.
 
 ## 🌐 Live Dashboard
 
-**View your dashboard at:** `https://YOUR_USERNAME.github.io/academic-directory/`
+**View your dashboard at:** `https://HiteshBishtCV.github.io/academic-directory/`
 
 ## 🚀 What This System Does
 
