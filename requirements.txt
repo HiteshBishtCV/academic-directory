@@ -1,15 +1,207 @@
-requests>=2.28.0
-beautifulsoup4>=4.11.0
-selenium>=4.8.0
-pandas>=1.5.0
-plotly>=5.15.0
-numpy>=1.24.0
-matplotlib>=3.6.0
-seaborn>=0.12.0
-jinja2>=3.1.0
+# requirements.txt
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+selenium>=4.15.0
+pandas>=2.0.0
 schedule>=1.2.0
-wordcloud>=1.9.0
-nltk>=3.8.0
-scikit-learn>=1.2.0
-networkx>=3.0.0
-python-dotenv>=1.0.0
+sqlite3
+lxml>=4.9.0
+webdriver-manager>=4.0.0
+
+# config.yaml
+database:
+  path: "academic_directory.db"
+  backup_interval: 24  # hours
+
+scraping:
+  delay_between_requests: 2  # seconds
+  max_retries: 3
+  timeout: 10  # seconds
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+
+linkedin:
+  enabled: true
+  headless: true
+  max_results_per_search: 10
+  search_keywords:
+    - "Medical Physics PhD"
+    - "Radiation Physics PhD" 
+    - "Medical Imaging PhD"
+    - "Radiotherapy PhD"
+    - "Nuclear Medicine PhD"
+    - "Health Physics PhD"
+    - "Biomedical Engineering PhD"
+    - "Physics PhD medical"
+
+universities:
+  "Paul Scherrer Institute":
+    url: "https://www.psi.ch/en/hr/job-opportunities"
+    country: "Switzerland"
+    scraper_type: "psi_custom"
+  "ETH Zurich":
+    url: "https://jobs.ethz.ch/"
+    country: "Switzerland"
+    scraper_type: "generic"
+  "CERN":
+    url: "https://careers.cern/"
+    country: "Switzerland"
+    scraper_type: "generic"
+  "University of Pennsylvania":
+    url: "https://www.upenn.edu/careers/"
+    country: "USA"
+    scraper_type: "generic"
+  "Stanford University":
+    url: "https://jobs.stanford.edu/"
+    country: "USA"
+    scraper_type: "generic"
+  "MIT":
+    url: "https://careers.mit.edu/"
+    country: "USA"
+    scraper_type: "generic"
+  "Harvard University":
+    url: "https://careers.harvard.edu/"
+    country: "USA"
+    scraper_type: "generic"
+  "University of California, Berkeley":
+    url: "https://jobs.berkeley.edu/"
+    country: "USA"
+    scraper_type: "generic"
+  "University of Michigan":
+    url: "https://careers.umich.edu/"
+    country: "USA"
+    scraper_type: "generic"
+  "Johns Hopkins University":
+    url: "https://jobs.jhu.edu/"
+    country: "USA"
+    scraper_type: "generic"
+  "University of Wisconsin-Madison":
+    url: "https://jobs.wisc.edu/"
+    country: "USA"
+    scraper_type: "generic"
+  "Mayo Clinic":
+    url: "https://jobs.mayoclinic.org/"
+    country: "USA"
+    scraper_type: "generic"
+  "MD Anderson Cancer Center":
+    url: "https://jobs.mdanderson.org/"
+    country: "USA"
+    scraper_type: "generic"
+
+monitoring:
+  check_interval: 6  # hours
+  website_timeout: 10  # seconds
+  failed_attempts_threshold: 3
+
+reporting:
+  generate_html: true
+  generate_json: true
+  generate_csv: true
+  email_notifications: false
+  
+# docker-compose.yml
+version: '3.8'
+
+services:
+  academic-tracker:
+    build: .
+    container_name: academic-tracker
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    restart: unless-stopped
+    command: python main.py
+    
+  # Optional: Add a web interface
+  web-interface:
+    build: ./web
+    container_name: academic-web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./reports:/usr/share/nginx/html/reports
+    depends_on:
+      - academic-tracker
+    restart: unless-stopped
+
+# Dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install Chrome for Selenium
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    unzip \
+    curl \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install ChromeDriver
+RUN CHROMEDRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE` && \
+    wget -N http://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip && \
+    unzip chromedriver_linux64.zip && \
+    rm chromedriver_linux64.zip && \
+    mv chromedriver /usr/local/bin/chromedriver && \
+    chmod +x /usr/local/bin/chromedriver
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["python", "main.py"]
+
+# .github/workflows/update-data.yml
+name: Update Academic Directory
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install Chrome
+      uses: browser-actions/setup-chrome@latest
+      
+    - name: Install ChromeDriver
+      uses: nanasess/setup-chromedriver@master
+      
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run data collection
+      run: |
+        python main.py
+        
+    - name: Generate web report
+      run: |
+        python web_report_generator.py
+        
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add -A
+        git diff --staged --quiet || git commit -m "Auto-update academic directory data $(date)"
+        git push
